@@ -28,6 +28,7 @@ jobs:
 
   basedpyright:
     name: BasedPyright
+    if: false # 禁用测试,并未设置文件
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
