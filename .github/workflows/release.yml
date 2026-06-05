@@ -44,7 +44,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 自动转正草稿并直接塞入打包好的资产
-          gh release create ${{ steps.version.outputs.TAG_NAME }} dist/*.tar.gz dist/*.whl --clobber --generate-notes
-
+          # 删掉了错误自带的 --clobber，完美匹配官方参数
+          gh release create ${{ steps.version.outputs.TAG_NAME }} dist/*.tar.gz dist/*.whl --generate-notes
       
