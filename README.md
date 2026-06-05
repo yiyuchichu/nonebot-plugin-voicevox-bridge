@@ -108,7 +108,7 @@
 ### 备注
 - APIKEY获取：https://voicevox.su-shiki.com/su-shikiapis/ 以及 https://su-shiki.com/api/
 - 积分规则：1500 + 100 x (UTF-8文字数)，每24h重置10,000,000积分。[该网站](https://voicevox.su-shiki.com/su-shikiapis/ttsquest/)也提供了不需要APIKEY的低速API，可按需取用（不过高速的限额其实也很高啦）
-- 本插件是我一时兴起的成过，受[nonebot-plugin-just-enough-katakanas](https://github.com/p0rt39/nonebot-plugin-just-enough-katakanas)启发，~~认为片假名需要念出来才能发挥其威力~~，不过实际上配合效果不太好。这是我的第一个Nonebot插件(难说会不会有下一个)，作为计算机小白，代码撰写几乎全部由AI代劳，出发点是自用，功能较少，也难免会出现没有发现的bug，维护恐怕也很难持续，敬请谅解。
+- 本插件是我一时兴起的结果，受[nonebot-plugin-just-enough-katakanas](https://github.com/p0rt39/nonebot-plugin-just-enough-katakanas)启发，~~认为片假名需要念出来才能发挥其威力~~，不过实际上配合效果不太好。这是我的第一个Nonebot插件(难说会不会有下一个)，作为计算机小白，代码撰写几乎全部由AI代劳，出发点是自用，功能较少，也难免会出现没有发现的bug，维护恐怕也很难持续，敬请谅解。
 
 ## VOICEVOX 声源列表（Web API 返回，供参考）
 

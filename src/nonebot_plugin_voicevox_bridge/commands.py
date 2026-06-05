@@ -69,14 +69,14 @@ async def handle_tts(args: Message = CommandArg()):
     text = args.extract_plain_text().strip()
     if not text:
         await tts_cmd.finish(
-            "用法: tts <speaker_id> <文本>\n"
-            "示例: tts 1 こんにちは\n"
+            "用法: /tts <speaker_id> <文本>\n"
+            "示例: /tts 1 こんにちは\n"
             "先用 /speakers 查看可用声源 ID"
         )
 
     parts = text.split(maxsplit=1)
     if len(parts) < 2:
-        await tts_cmd.finish("用法: tts <speaker_id> <文本>\n示例: tts 1 こんにちは")
+        await tts_cmd.finish("用法: /tts <speaker_id> <文本>\n示例: /tts 1 こんにちは")
 
     try:
         speaker_id = int(parts[0])
