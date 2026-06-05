@@ -5,26 +5,28 @@ VOICEVOX 插件命令测试
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from nonebug import App
-from nonebot.adapters.onebot.v11 import Bot, Message
-
 from fake import fake_group_message_event_v11
+from nonebug import App
+from nonebot.adapters.onebot.v11 import Bot
 
 
 @pytest.fixture
 def mock_client():
     """模拟 commands 模块中的全局 client 实例"""
     import nonebot_plugin_voicevox_bridge.commands as commands
+
     with patch.object(commands, "client", autospec=True) as mock_client:
         mock_client.is_tts_quest = True
 
-        mock_client.get_speakers = AsyncMock(return_value=[
-            {"name": "测试声源A", "styles":
-                [{"id": 1, "name": "风格1"}, {"id": 2, "name": "风格2"}]},
-            {"name": "测试声源B", "styles":
-                [{"id": 3, "name": "风格3"}]},
-        ])
-
+        mock_client.get_speakers = AsyncMock(
+            return_value=[
+                {
+                    "name": "测试声源A",
+                    "styles": [{"id": 1, "name": "风格1"}, {"id": 2, "name": "风格2"}],
+                },
+                {"name": "测试声源B", "styles": [{"id": 3, "name": "风格3"}]},
+            ]
+        )
 
         # 模拟 tts 返回假音频数据
         mock_client.tts = AsyncMock(return_value=b"fake_wav_data")
@@ -154,8 +156,10 @@ async def test_tts_command_empty_args(app: App, mock_client):
 # ------------------------------------------------------------
 @pytest.mark.asyncio
 async def test_status_command(app: App, mock_client):
-    from nonebot_plugin_voicevox_bridge.commands import status_cmd
-    from nonebot_plugin_voicevox_bridge.commands import plugin_config  # 从 commands 导入
+    from nonebot_plugin_voicevox_bridge.commands import (
+        status_cmd,
+        plugin_config,  # 从 commands 导入
+    )
 
     async with app.test_matcher(status_cmd) as ctx:
         bot = ctx.create_bot(base=Bot)
