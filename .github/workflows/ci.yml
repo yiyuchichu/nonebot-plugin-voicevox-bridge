@@ -28,7 +28,7 @@ jobs:
 
   basedpyright:
     name: BasedPyright
-    if: false # 禁用测试,并未设置文件
+    # if: false # 禁用测试,并未设置文件
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -48,7 +48,7 @@ jobs:
 
   test:
     name: Coverage
-    if: false # 禁用测试,并未设置文件
+    # if: false # 禁用测试,并未设置文件
     # runs-on: ${{ matrix.os }}
     runs-on: ubuntu-latest
     permissions:
