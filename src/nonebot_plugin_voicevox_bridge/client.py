@@ -1,4 +1,3 @@
-import base64
 from typing import Any
 
 import httpx
@@ -15,7 +14,12 @@ class VoiceVoxClient:
     tts.quest address: https://deprecatedapis.tts.quest/v2/voicevox
     """
 
-    def __init__(self, base_url: str = "http://127.0.0.1:50021", timeout: float = 30.0, api_key: str | None = None):
+    def __init__(
+        self,
+        base_url: str = "http://127.0.0.1:50021",
+        timeout: float = 30.0,
+        api_key: str | None = None,
+    ):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.api_key = api_key
@@ -89,10 +93,13 @@ class VoiceVoxClient:
         if self.is_tts_quest and query.get("_is_tts_quest"):
             return await self.tts(query.get("text", ""), speaker)
         elif self.is_tts_quest:
-            raise VoiceVoxError("tts.quest Web API 无法直接处理本地化的 Query JSON 数据")
+            raise VoiceVoxError(
+                "tts.quest Web API 无法直接处理本地化的 Query JSON 数据"
+            )
 
         resp = await self._request(
-            "POST", "/synthesis",
+            "POST",
+            "/synthesis",
             params={"speaker": speaker},
             json=query,
             headers={"Accept": "audio/wav"},
@@ -154,5 +161,7 @@ class VoiceVoxClient:
             resp = await client.request("GET", url, params=params)
 
             if resp.status_code != 200:
-                raise VoiceVoxError(f"无法获取积分数据 ({resp.status_code}): {resp.text}")
+                raise VoiceVoxError(
+                    f"无法获取积分数据 ({resp.status_code}): {resp.text}"
+                )
             return resp.json()

@@ -1,6 +1,8 @@
-from nonebot.plugin import PluginMetadata
-from .config import Config
 from nonebot import require
+from nonebot.plugin import PluginMetadata
+
+from .config import Config
+
 require("nonebot_plugin_localstore")
 
 __plugin_meta__ = PluginMetadata(
@@ -15,11 +17,13 @@ __plugin_meta__ = PluginMetadata(
         "\n"
         "环境变量:\n"
         "  VOICEVOX_API_URL    = http://127.0.0.1:50021  （本地引擎默认端口）\n"
-        "                        https://deprecatedapis.tts.quest/v2/voicevox  （Web模式）\n"
+        "                        https://deprecatedapis.tts.quest/v2/"
+        "voicevox  （Web模式）\n"
         "  VOICEVOX_TIMEOUT     = 30.0\n"
         "  VOICEVOX_API_KEY     = 你的密钥  （仅Web模式需要）\n"
         "\n"
-        "提示：URL 包含 tts.quest 时自动切换为 Web 模式，否则为本地引擎。注意默认的本地引擎需要自行部署并在本地运行。"
+        "提示：URL 包含 tts.quest 时自动切换为 Web 模式，否则为本地引擎。"
+        "注意默认的本地引擎需要自行部署并在本地运行。"
         "\n"
         "Web API说明:\n"
         "  • 本插件适配的API网站：https://voicevox.su-shiki.com/su-shikiapis/\n"
@@ -34,8 +38,10 @@ __plugin_meta__ = PluginMetadata(
     type="application",  # library
     homepage="https://github.com/yiyuchichu/nonebot-plugin-voicevox-bridge",
     config=Config,
-    supported_adapters={"~onebot.v11"}, # 仅 onebot
+    supported_adapters={"~onebot.v11"},  # 仅 onebot
     extra={"author": "yiyuchichu <your@mail.com>"},
 )
 
 from . import commands
+
+__all__ = ["commands"]

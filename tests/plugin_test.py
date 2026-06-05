@@ -2,11 +2,13 @@
 VOICEVOX 插件命令测试
 """
 
-import pytest
 from unittest.mock import AsyncMock, patch
-from nonebug import App
-from nonebot.adapters.onebot.v11 import Bot, Message, Adapter as OneBotV11Adapter
+
+import pytest
 import nonebot
+from nonebug import App
+from nonebot.adapters.onebot.v11 import Bot, Message
+from nonebot.adapters.onebot.v11 import Adapter as OneBotV11Adapter
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -96,7 +98,9 @@ async def test_tts_command_success(app: App, mock_voicevox_client):
     from nonebot_plugin_voicevox_bridge.commands import tts_cmd
 
     # 模拟 save_and_send_audio 函数，避免文件操作
-    with patch("nonebot_plugin_voicevox_bridge.commands.save_and_send_audio", new=AsyncMock()) as mock_save:
+    with patch(
+        "nonebot_plugin_voicevox_bridge.commands.save_and_send_audio", new=AsyncMock()
+    ) as mock_save:
         async with app.test_matcher(tts_cmd) as ctx:
             bot = ctx.create_bot(base=Bot, adapter=OneBotV11Adapter)
             # 发送正确格式的命令：/tts 1 こんにちは
@@ -108,7 +112,8 @@ async def test_tts_command_success(app: App, mock_voicevox_client):
 
             # 验证 save_and_send_audio 被调用了一次，并且传入了正确的参数
             mock_save.assert_awaited_once()
-            # 检查第一个参数是 matcher（tts_cmd 实例），第二个是音频数据，第三个是 speaker_id
+            # 检查第一个参数是 matcher（tts_cmd 实例），
+            # 第二个是音频数据，第三个是 speaker_id
             args, _ = mock_save.await_args
             assert args[0] is tts_cmd
             assert args[1] == b"fake_wav_data"
@@ -127,7 +132,9 @@ async def test_tts_command_invalid_speaker_id(app: App, mock_voicevox_client):
         event = ctx.create_group_message_event(message="/tts abc こんにちは")
         ctx.receive_event(bot, event)
 
-        ctx.should_finished(Message("speaker_id 必须是数字，请用 /speakers 查看可用 ID"))
+        ctx.should_finished(
+            Message("speaker_id 必须是数字，请用 /speakers 查看可用 ID")
+        )
 
 
 @pytest.mark.asyncio
@@ -150,8 +157,8 @@ async def test_tts_command_missing_text(app: App, mock_voicevox_client):
 @pytest.mark.asyncio
 async def test_status_command(app: App, mock_voicevox_client):
     """测试 status 命令能正确返回引擎版本和地址"""
-    from nonebot_plugin_voicevox_bridge.commands import status_cmd
     from nonebot_plugin_voicevox_bridge.config import plugin_config
+    from nonebot_plugin_voicevox_bridge.commands import status_cmd
 
     async with app.test_matcher(status_cmd) as ctx:
         bot = ctx.create_bot(base=Bot, adapter=OneBotV11Adapter)
@@ -159,7 +166,9 @@ async def test_status_command(app: App, mock_voicevox_client):
         ctx.receive_event(bot, event)
 
         expected_msg = (
-            f"VOICEVOX 引擎运行中\n版本: test-version-0.0.1\n地址: {plugin_config.voicevox_api_url}"
+            f"VOICEVOX 引擎运行中\n"
+            f"版本: test-version-0.0.1\n"
+            f"地址: {plugin_config.voicevox_api_url}"
         )
         ctx.should_finished(Message(expected_msg))
 
@@ -181,9 +190,9 @@ async def test_points_command_web_mode(app: App, mock_voicevox_client):
         ctx.receive_event(bot, event)
 
         expected_msg = (
-            f"tts.quest 剩余积分:\n"
-            f"当前剩余 API 积分: 12345 pt\n"
-            f"积分计算公式: 1500 + 100 x (UTF-8文字数)"
+            "tts.quest 剩余积分:\n"
+            "当前剩余 API 积分: 12345 pt\n"
+            "积分计算公式: 1500 + 100 x (UTF-8文字数)"
         )
         ctx.should_finished(Message(expected_msg))
 

@@ -1,25 +1,19 @@
-import base64
-import os
-import tempfile
-from pathlib import Path
-
-from nonebot import on_command, get_plugin_config
-from nonebot.adapters.onebot.v11 import MessageSegment, Message
-from nonebot.exception import MatcherException
+from nonebot import get_driver, on_command, get_plugin_config
 from nonebot.log import logger
 from nonebot.params import CommandArg
+from nonebot.exception import MatcherException
+from nonebot.adapters.onebot.v11 import Message
 
-from .client import VoiceVoxClient, VoiceVoxError
-from .config import Config, plugin_config
 from .utils import save_and_send_audio
-
+from .client import VoiceVoxError, VoiceVoxClient
+from .config import Config
 
 # ------------------------------------------------------------------
 # configuration
 # ------------------------------------------------------------------
 
-# 配置依然可以在这里获取，或者通过依赖注入
-plugin_config = get_plugin_config(Config)
+plugin_config: Config = get_plugin_config(Config)
+global_config = get_driver().config
 
 client = VoiceVoxClient(
     base_url=plugin_config.voicevox_api_url,
@@ -31,7 +25,10 @@ client = VoiceVoxClient(
 # 1.    /speakers  —  list available speakers
 # ------------------------------------------------------------------
 
-speakers_cmd = on_command("speakers", aliases={"声源列表", "voicevox_speakers"}, priority=5)
+speakers_cmd = on_command(
+    "speakers", aliases={"声源列表", "voicevox_speakers"}, priority=5
+)
+
 
 @speakers_cmd.handle()
 async def handle_speakers():
@@ -60,10 +57,12 @@ async def handle_speakers():
 
     await speakers_cmd.finish("\n".join(lines))
 
+
 # ------------------------------------------------------------------
 # 2.    /tts  —  text to speech
 # ------------------------------------------------------------------
 tts_cmd = on_command("tts", aliases={"语音合成"}, priority=5)
+
 
 @tts_cmd.handle()
 async def handle_tts(args: Message = CommandArg()):
@@ -77,9 +76,7 @@ async def handle_tts(args: Message = CommandArg()):
 
     parts = text.split(maxsplit=1)
     if len(parts) < 2:
-        await tts_cmd.finish(
-            "用法: tts <speaker_id> <文本>\n示例: tts 1 こんにちは"
-        )
+        await tts_cmd.finish("用法: tts <speaker_id> <文本>\n示例: tts 1 こんにちは")
 
     try:
         speaker_id = int(parts[0])
@@ -107,38 +104,47 @@ async def handle_tts(args: Message = CommandArg()):
     # 调用我们的工具函数来处理音频发送
     await save_and_send_audio(tts_cmd, wav, speaker_id)
 
+
 # ------------------------------------------------------------------
 # 3.    /voicevox_status  —  check engine health
 # ------------------------------------------------------------------
 status_cmd = on_command("voicevox_status", aliases={"voicevox状态", "vvs"}, priority=5)
 
+
 @status_cmd.handle()
 async def handle_status():
     try:
         version = await client.get_version()
-        msg = f"VOICEVOX 引擎运行中\n版本: {version}\n地址: {plugin_config.voicevox_api_url}"
+        msg = (
+            f"VOICEVOX 引擎运行中\n"
+            f"版本: {version}\n"
+            f"地址: {plugin_config.voicevox_api_url}"
+        )
     except VoiceVoxError as e:
         msg = f"VOICEVOX 引擎返回错误: {e}"
     except Exception:
-        msg = f"VOICEVOX 引擎未连接\n地址: {plugin_config.voicevox_api_url}\n请确认引擎已启动"
+        msg = (
+            f"VOICEVOX 引擎未连接\n"
+            f"地址: {plugin_config.voicevox_api_url}\n"
+            "请确认引擎已启动"
+        )
     await status_cmd.finish(msg)
+
 
 # ------------------------------------------------------------------
 # 4.    /voicevox_points  —  [tts.quest专用] 查看剩余API积分
 # ------------------------------------------------------------------
 
 points_cmd = on_command(
-    "voicevox_points",
-    aliases={"apilimit", "voicevox_points"},
-    priority=5
+    "voicevox_points", aliases={"apilimit", "voicevox_points"}, priority=5
 )
+
 
 @points_cmd.handle()
 async def handle_points():
     if not getattr(client, "is_tts_quest", False):
         await points_cmd.finish("当前正在使用本地 VOICEVOX 引擎，无需消耗积分。")
 
-    msg = ""
     try:
         data = await client.get_api_points()
         points = data.get("points", "未知")
