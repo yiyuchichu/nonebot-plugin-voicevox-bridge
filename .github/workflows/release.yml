@@ -40,6 +40,13 @@ jobs:
           uv build
           uv publish
 
+      - name: Create or Publish GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # gh release create 会自动把 Release Drafter 生成的草稿发布（转正），如果不存在则会直接创建。
+          gh release create ${{ steps.version.outputs.TAG_NAME }} --generate-notes --title "${{ steps.version.outputs.TAG_NAME }}"
+
       - name: Upload Release Asset
         run: gh release upload --clobber ${{ steps.version.outputs.TAG_NAME }} dist/*.tar.gz dist/*.whl
         env:
