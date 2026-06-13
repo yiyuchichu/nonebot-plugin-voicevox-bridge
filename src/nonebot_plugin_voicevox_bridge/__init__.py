@@ -10,6 +10,7 @@ __plugin_meta__ = PluginMetadata(
     description="使用本地引擎或 Web API 的 VOICEVOX 语音合成插件",
     usage=(
         "命令列表:\n"
+        "  ttshelp / tts帮助 — 显示详细帮助与用法示例\n"
         "  speakers / 声源列表         — 查看可用声源\n"
         "  tts <id> <文本> / 语音合成   — 文字转语音\n"
         "  voicevox_status / voicevox状态 — 检查引擎状态\n"
@@ -39,7 +40,7 @@ __plugin_meta__ = PluginMetadata(
     homepage="https://github.com/yiyuchichu/nonebot-plugin-voicevox-bridge",
     config=Config,
     supported_adapters={"~onebot.v11"},  # 仅 onebot
-    extra={"author": "yiyuchichu <your@mail.com>"},
+    extra={"author": "yiyuchichu@gmail.com"},
 )
 
 from . import commands

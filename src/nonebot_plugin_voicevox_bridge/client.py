@@ -151,7 +151,7 @@ class VoiceVoxClient:
             return await self.synthesis(speaker, query)
 
     async def get_api_points(self) -> dict[str, Any]:
-        """[tts.quest专用] 获取云端高效率 API 的剩余积分"""
+        """[仅用于tts.quest] 获取云端高效率 API 的剩余积分"""
         if not self.is_tts_quest:
             raise VoiceVoxError("积分查询功能仅在启用 tts.quest 模式时可用。")
 

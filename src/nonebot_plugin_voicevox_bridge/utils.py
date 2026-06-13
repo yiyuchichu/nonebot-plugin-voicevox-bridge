@@ -5,10 +5,12 @@ import nonebot_plugin_localstore as store
 from nonebot.log import logger
 from nonebot.adapters.onebot.v11 import MessageSegment
 
+CACHE_DIR = store.get_plugin_cache_dir()
+
 
 async def save_and_send_audio(matcher, wav_data: bytes, speaker_id: int):
     """保存音频文件并尝试发送。"""
-    cache_file = store.get_plugin_cache_file(f"voicevox_tts_{speaker_id}.wav")
+    cache_file = CACHE_DIR / f"voicevox_tts_{speaker_id}.wav"
     async with aiofiles.open(cache_file, "wb") as f:
         await f.write(wav_data)
     try:

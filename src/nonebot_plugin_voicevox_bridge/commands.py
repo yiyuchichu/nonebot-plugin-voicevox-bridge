@@ -159,3 +159,30 @@ async def handle_points():
     except Exception as e:
         logger.error(f"获取 tts.quest API 积分失败: {e}")
         await points_cmd.finish(f"积分获取失败: {e}")
+
+
+# ------------------------------------------------------------------
+# 5.    /ttshelp  —  显示详细帮助与用法示例
+# ------------------------------------------------------------------
+
+tts_help_cmd = on_command("ttshelp", aliases={"tts帮助", "voicevox_help"}, priority=5)
+
+
+@tts_help_cmd.handle()
+async def handle_tts_help():
+    help_text = (
+        "===== VOICEVOX BRIDGE 使用帮助 =====\n\n"
+        "查看声源：/speakers (或 /声源列表)\n"
+        "   获取所有可用角色的数字 ID 和音色风格。\n\n"
+        "语音合成：/tts <声源ID> <文本> (或 /语音合成)\n"
+        "   示例：/tts 1 こんにちは\n"
+        "   示例：/tts 2 hello\n\n"
+        "状态检查：/voicevox_status (或 /vvs)\n"
+        "   检查后端本地引擎或 Web API 是否正常连通。\n\n"
+        "点数查询：/apilimit (或 /voicevox_points)\n"
+        "   仅在 Web API (tts.quest) 模式下有效，查看今日剩余额度。\n\n"
+        "【使用提示】\n"
+        "• 请确保 /tts 后的第一个参数是【数字ID】，且与后面的文本之间有【空格】隔开。\n"
+        "• 如果合成失败，请联系管理员确认后台引擎是否已正常启动。"
+    )
+    await tts_help_cmd.finish(help_text)
