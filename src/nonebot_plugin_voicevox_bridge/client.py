@@ -25,6 +25,13 @@ class VoiceVoxClient:
         self.api_key = api_key
         self.is_tts_quest = "tts.quest" in self.base_url
 
+        # 实例化一个持久的客户端供全局复用
+        self.http_client = httpx.AsyncClient(timeout=self.timeout)
+
+    async def close(self):
+        """关闭 HTTP 客户端，建议在 on_shutdown 钩子中调用"""
+        await self.http_client.aclose()
+
     # ------------------------------------------------------------------
     # internal helpers
     # ------------------------------------------------------------------
@@ -46,26 +53,26 @@ class VoiceVoxClient:
             if self.api_key:
                 params["key"] = self.api_key
 
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            resp = await client.request(
-                method, url, params=params, json=json, headers=headers
-            )
+        # 【核心修改】复用 self.http_client，移除 async with 新建实例的逻辑
+        resp = await self.http_client.request(
+            method, url, params=params, json=json, headers=headers
+        )
 
-            if self.is_tts_quest:
-                if resp.status_code != 200:
-                    raise VoiceVoxError(f"HTTP Error ({resp.status_code}): {resp.text}")
-                if resp.text in ["invalidApiKey", "failed", "notEnoughPoints"]:
-                    raise VoiceVoxError(f"tts.quest API Error: {resp.text}")
-                return resp
-
-            try:
-                resp.raise_for_status()
-            except httpx.HTTPStatusError as e:
-                detail = resp.text
-                raise VoiceVoxError(
-                    f"VOICEVOX API error ({resp.status_code}): {detail}"
-                ) from e
+        if self.is_tts_quest:
+            if resp.status_code != 200:
+                raise VoiceVoxError(f"HTTP Error ({resp.status_code}): {resp.text}")
+            if resp.text in ["invalidApiKey", "failed", "notEnoughPoints"]:
+                raise VoiceVoxError(f"tts.quest API Error: {resp.text}")
             return resp
+
+        try:
+            resp.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            detail = resp.text
+            raise VoiceVoxError(
+                f"VOICEVOX API error ({resp.status_code}): {detail}"
+            ) from e
+        return resp
 
     # ------------------------------------------------------------------
     # core API – query creation
@@ -155,13 +162,10 @@ class VoiceVoxClient:
         if not self.is_tts_quest:
             raise VoiceVoxError("积分查询功能仅在启用 tts.quest 模式时可用。")
 
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            url = "https://deprecatedapis.tts.quest/v2/api/"
-            params = {"key": self.api_key} if self.api_key else {}
-            resp = await client.request("GET", url, params=params)
+        url = "https://deprecatedapis.tts.quest/v2/api/"
+        params = {"key": self.api_key} if self.api_key else {}
+        resp = await self.http_client.request("GET", url, params=params)
 
-            if resp.status_code != 200:
-                raise VoiceVoxError(
-                    f"无法获取积分数据 ({resp.status_code}): {resp.text}"
-                )
-            return resp.json()
+        if resp.status_code != 200:
+            raise VoiceVoxError(f"无法获取积分数据 ({resp.status_code}): {resp.text}")
+        return resp.json()

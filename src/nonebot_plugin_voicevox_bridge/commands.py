@@ -1,7 +1,8 @@
+import re
+
 from nonebot import get_driver, on_command, get_plugin_config
 from nonebot.log import logger
 from nonebot.params import CommandArg
-from nonebot.exception import MatcherException
 from nonebot.adapters.onebot.v11 import Message
 
 from .utils import save_and_send_audio
@@ -9,17 +10,25 @@ from .client import VoiceVoxError, VoiceVoxClient
 from .config import Config
 
 # ------------------------------------------------------------------
-# configuration
+# configuration & lifecycle
 # ------------------------------------------------------------------
 
 plugin_config: Config = get_plugin_config(Config)
-global_config = get_driver().config
+driver = get_driver()
+global_config = driver.config
 
 client = VoiceVoxClient(
     base_url=plugin_config.voicevox_api_url,
     timeout=plugin_config.voicevox_timeout,
     api_key=plugin_config.voicevox_api_key,
 )
+
+
+@driver.on_shutdown
+async def close_voicevox_client():
+    logger.info("Closing VOICEVOX HTTP client...")
+    await client.close()
+
 
 # ------------------------------------------------------------------
 # 1.    /speakers  —  list available speakers
@@ -74,16 +83,14 @@ async def handle_tts(args: Message = CommandArg()):
             "先用 /speakers 查看可用声源 ID"
         )
 
-    parts = text.split(maxsplit=1)
-    if len(parts) < 2:
-        await tts_cmd.finish("用法: /tts <speaker_id> <文本>\n示例: /tts 1 こんにちは")
+    match = re.match(r"^(\d+)\s+(.+)$", text, re.DOTALL)
+    if not match:
+        await tts_cmd.finish(
+            "格式错误！\n用法: /tts <speaker_id> <文本>\n示例: /tts 1 こんにちは"
+        )
 
-    try:
-        speaker_id = int(parts[0])
-    except ValueError:
-        await tts_cmd.finish("speaker_id 必须是数字，请用 /speakers 查看可用 ID")
-
-    text_to_speak = parts[1]
+    speaker_id = int(match.group(1))
+    text_to_speak = match.group(2).strip()
 
     await tts_cmd.send(f"正在用声源 {speaker_id} 合成语音...")
 
@@ -147,18 +154,18 @@ async def handle_points():
 
     try:
         data = await client.get_api_points()
-        points = data.get("points", "未知")
-        await points_cmd.finish(
-            f"tts.quest 剩余积分:\n"
-            f"当前剩余 API 积分: {points} pt\n"
-            f"积分计算公式: 1500 + 100 x (UTF-8文字数)\n"
-            f"大约可合成 {points // 4500} 条语音(30字)"
-        )
-    except MatcherException:
-        raise  # 让 NoneBot 正常结束事件
     except Exception as e:
         logger.error(f"获取 tts.quest API 积分失败: {e}")
         await points_cmd.finish(f"积分获取失败: {e}")
+
+    points = data.get("points", "未知")
+    await points_cmd.finish(
+        f"tts.quest 剩余积分:\n"
+        f"当前剩余 API 积分: {points} pt\n"
+        f"积分计算公式: 1500 + 100 x (UTF-8文字数)\n"
+        f"大约可合成 {points // 4500 if isinstance(points, int) else '未知'} "
+        f"条语音(30字)"
+    )
 
 
 # ------------------------------------------------------------------
