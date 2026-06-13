@@ -725,7 +725,7 @@ wheels = [
 
 [[package]]
 name = "nonebot-plugin-voicevox-bridge"
-version = "0.1.5"
+version = "0.1.6"
 source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },
