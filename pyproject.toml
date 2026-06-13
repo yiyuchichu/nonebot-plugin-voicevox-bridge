@@ -1,6 +1,6 @@
 [project]
 name = "nonebot-plugin-voicevox-bridge"
-version = "0.1.6"
+version = "0.1.7"
 description = "使用本地引擎或 Web API 的 VOICEVOX 语音合成插件"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -44,7 +44,7 @@ build-backend = "uv_build"
 
 
 [tool.bumpversion]
-current_version = "0.1.6"
+current_version = "0.1.7"
 commit = true
 message = "release: bump vesion from {current_version} to {new_version}"
 tag = true
